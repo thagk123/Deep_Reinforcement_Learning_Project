@@ -52,10 +52,10 @@ def select_action(state, epsilon, policy_net, action_dim, device):
     """ Selects an action based on epsilon-greedy policy."""
     if random.random() < epsilon:
         return random.randint(0, action_dim - 1)
-    else:
-        with torch.no_grad():
-            state = torch.from_numpy(np.array(state)).float().unsqueeze(0).to(device)
-            return policy_net(state).argmax().item()
+
+    with torch.no_grad():
+        state = torch.from_numpy(np.array(state)).float().unsqueeze(0).to(device)
+        return policy_net(state).argmax().item()
 
 # Εκπαίδευση
 def train(policy_net, target_net, memory, optimizer, batch_size, gamma, device):
