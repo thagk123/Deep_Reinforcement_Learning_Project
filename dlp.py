@@ -1,11 +1,13 @@
+import random
+from collections import deque
+
 import gymnasium as gym
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from collections import deque
-import random
-import numpy as np
-import matplotlib.pyplot as plt
+
 
 # Νευρωνικό Δίκτυο DQN
 class DQN(nn.Module):
