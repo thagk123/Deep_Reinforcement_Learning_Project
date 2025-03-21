@@ -17,7 +17,7 @@ import torch.optim as optim
 class DQN(nn.Module):
     """ Class implementing a Deep Q-Network (DQN)."""
     def __init__(self, state_dim, action_dim):
-        super(DQN, self).__init__()
+        super().__init__()
         self.net = nn.Sequential(
             nn.Linear(state_dim, 128),
             nn.ReLU(),
