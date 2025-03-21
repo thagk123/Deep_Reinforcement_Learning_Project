@@ -31,7 +31,7 @@ class DQN(nn.Module):
         return self.net(x)
 
 # Replay Buffer
-class ReplayMemory:
+class ReplayMemory: # pylint: disable=R0903
     """ Class implementing a Replay Buffer. """
     def __init__(self, capacity):
         self.buffer = deque(maxlen=capacity)
