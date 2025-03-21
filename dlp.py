@@ -15,6 +15,7 @@ import torch.optim as optim
 
 # Νευρωνικό Δίκτυο DQN
 class DQN(nn.Module):
+    """ Class implementing a Deep Q-Network (DQN)."""
     def __init__(self, state_dim, action_dim):
         super(DQN, self).__init__()
         self.net = nn.Sequential(
@@ -26,17 +27,21 @@ class DQN(nn.Module):
         )
 
     def forward(self, x):
+        """ Forward pass through the network."""
         return self.net(x)
 
 # Replay Buffer
 class ReplayMemory:
+    """ Class implementing a Replay Buffer. """
     def __init__(self, capacity):
         self.buffer = deque(maxlen=capacity)
 
     def push(self, state, action, reward, next_state, done):
+        """ Adds a new experience to memory."""
         self.buffer.append((state, action, reward, next_state, done))
 
     def sample(self, batch_size):
+        """ Samples a batch of experiences from memory."""
         return random.sample(self.buffer, batch_size)
 
     def __len__(self):
@@ -44,6 +49,7 @@ class ReplayMemory:
 
 # Επιλογή δράσης
 def select_action(state, epsilon, policy_net, action_dim, device):
+    """ Selects an action based on epsilon-greedy policy."""
     if random.random() < epsilon:
         return random.randint(0, action_dim - 1)
     else:
@@ -53,6 +59,7 @@ def select_action(state, epsilon, policy_net, action_dim, device):
 
 # Εκπαίδευση
 def train(policy_net, target_net, memory, optimizer, batch_size, gamma, device):
+    """ Trains the network."""
     if len(memory) < batch_size:
         return
 
@@ -77,6 +84,7 @@ def train(policy_net, target_net, memory, optimizer, batch_size, gamma, device):
 
 # Αξιολόγηση πράκτορα χωρίς εξερεύνηση
 def evaluate_agent(model_path, episodes=5, render=False):
+    """ Evaluates the agent on a specified number of episodes."""
     env = gym.make("CartPole-v1", render_mode="human" if render else None)
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.n
