@@ -2,9 +2,9 @@ import gymnasium as gym
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from collections import deque
 import random
 import numpy as np
-from collections import deque
 import matplotlib.pyplot as plt
 
 # Νευρωνικό Δίκτυο DQN
@@ -164,4 +164,3 @@ if __name__ == '__main__':
 
     # (Προαιρετικό) Εκτέλεση αξιολόγησης χωρίς εξερεύνηση
     evaluate_agent("model.pth", episodes=5, render=False)
-
