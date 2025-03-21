@@ -14,7 +14,7 @@ import torch.optim as optim
 
 
 # Νευρωνικό Δίκτυο DQN
-class DQN(nn.Module):
+class DQN(nn.Module): # pylint: disable=R0903
     """ Class implementing a Deep Q-Network (DQN)."""
     def __init__(self, state_dim, action_dim):
         super().__init__()
@@ -31,7 +31,7 @@ class DQN(nn.Module):
         return self.net(x)
 
 # Replay Buffer
-class ReplayMemory: # pylint: disable=R0903
+class ReplayMemory:
     """ Class implementing a Replay Buffer. """
     def __init__(self, capacity):
         self.buffer = deque(maxlen=capacity)
