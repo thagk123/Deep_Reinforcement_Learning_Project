@@ -1,3 +1,7 @@
+"""
+This script implements a reinforcement learning agent using Deep Q-Networks (DQN).
+"""
+
 import random
 from collections import deque
 
