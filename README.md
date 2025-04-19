@@ -16,7 +16,6 @@ To switch to Double DQN, uncomment the last two lines in the main() function.
 ## Outputs
 - best_model.pth: Best performing DQN model
 - test_results/: Recorded videos of evaluation episodes
-- 
 
 🇬🇷 Ελληνικά
 
