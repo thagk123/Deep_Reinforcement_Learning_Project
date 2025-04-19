@@ -71,8 +71,8 @@ class ReplayBuffer:
 
 
 def train_dqn(use_double=False):
-    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment. 
-    
+    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment.
+
     Args:
         use_double (bool): If True, use Double DQN. Otherwise, use standard DQN.
     """
@@ -168,7 +168,7 @@ def test_agent(model_path, save_dir,episodes=10):
         name_prefix="lunar_test",
         episode_trigger=lambda x: True
     )
-    
+
     model = DQN()
     model.load_state_dict(torch.load(model_path))
     model.eval()
@@ -209,3 +209,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+ 
