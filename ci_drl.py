@@ -2,15 +2,15 @@
 
 import os
 import time
-import test
-import torch
 import random
+import shutil
+from collections import deque
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.optim as optim
 import gymnasium as gym
-
-from collections import deque
+from gymnasium.wrappers import RecordVideo
 
 # ------------------------------
 # Hyperparameters
@@ -145,7 +145,9 @@ def train_dqn(use_double=False):
 
         epsilon = max(EPS_END, epsilon * EPS_DECAY)
         agent_type = "Double DQN" if use_double else "DQN"
-        print(f"[{agent_type}] Episode {episode + 1}, Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}")
+        print(f"[{agent_type}] Episode {episode + 1}, "
+              f"Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}")
+
 
     env.close()
     end = time.time()
@@ -154,15 +156,19 @@ def train_dqn(use_double=False):
 
 def test_agent(model_path, save_dir,episodes=10):
     """ Test the trained agent on the LunarLander-v3 environment."""
-    from gymnasium.wrappers import RecordVideo
-    import shutil
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
     os.makedirs(save_dir, exist_ok=True)
 
     env = gym.make("LunarLander-v3", render_mode="rgb_array")
-    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
+    env = RecordVideo(
+        env,
+        video_folder=save_dir,
+        name_prefix="lunar_test",
+        episode_trigger=lambda x: True
+    )    
+
 
     model = DQN()
     model.load_state_dict(torch.load(model_path))
@@ -177,7 +183,8 @@ def test_agent(model_path, save_dir,episodes=10):
 
         while True:
             with torch.no_grad():
-                action = model(torch.tensor(state, dtype=torch.float32).unsqueeze(0)).argmax().item()
+                state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+                action = model(state_tensor).argmax().item()
             next_state, reward, terminated, truncated, _ = env.step(action)
             total_reward += reward
             state = next_state
