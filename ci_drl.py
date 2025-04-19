@@ -166,8 +166,9 @@ def test_agent(model_path, save_dir,episodes=10):
         env,
         video_folder=save_dir,
         name_prefix="lunar_test",
-        episode_trigger=lambda x: True)    
-
+        episode_trigger=lambda x: True
+    )
+    
     model = DQN()
     model.load_state_dict(torch.load(model_path))
     model.eval()
