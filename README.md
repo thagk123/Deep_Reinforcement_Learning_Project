@@ -16,8 +16,10 @@ To switch to Double DQN, uncomment the last two lines in the main() function.
 ## Outputs
 - best_model.pth: Best performing DQN model
 - test_results/: Recorded videos of evaluation episodes
+- 
 
 🇬🇷 Ελληνικά
+
 Αυτό το project υλοποιεί με χρήση PyTorch δύο αλγορίθμους: DQN και Double DQN για το περιβάλλον LunarLander-v3 της βιβλιοθήκης Gymnasium.
 
 ## Δυνατότητες
