@@ -142,7 +142,7 @@ def train_dqn(use_double=False):
             best_reward = total_reward
             save_path = "best_model_double.pth" if use_double else "best_model.pth"
             torch.save(policy_net.state_dict(), save_path)
-            print(f"📦 ΝΕΟ ΚΑΛΥΤΕΡΟ ΜΟΝΤΕΛΟ αποθηκεύτηκε με reward: {best_reward:.2f}")
+            print(f"New best model saved, with reward: {best_reward:.2f}")
 
         epsilon = max(EPS_END, epsilon * EPS_DECAY)
         agent_type = "Double DQN" if use_double else "DQN"
@@ -150,8 +150,7 @@ def train_dqn(use_double=False):
 
     env.close()
     end = time.time()
-    print(f"🕒 Εκπαίδευση ολοκληρώθηκε σε {(end - start)/60:.2f} λεπτά")
-
+    print(f"Training time: {(end - start)/60:.2f} minutes")
 
 
 def test_agent(model_path, save_dir,episodes=10):
@@ -172,7 +171,7 @@ def test_agent(model_path, save_dir,episodes=10):
 
     rewards = []
 
-    print(f"🎮 Testing agent from '{model_path}'")
+    print(f"Testing agent from '{model_path}'")
     for episode in range(episodes):
         state, _ = env.reset()
         total_reward = 0
