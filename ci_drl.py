@@ -88,7 +88,7 @@ def train_dqn(use_double=False):
     step_count = 0
     start = time.time()
 
-    best_reward = float('-inf')  # για αποθήκευση του καλύτερου μοντέλου
+    best_reward = float('-inf')
 
     for episode in range(NUM_EPISODES):
         state, _ = env.reset()
@@ -137,7 +137,6 @@ def train_dqn(use_double=False):
             if done:
                 break
 
-        # ➕ Έλεγχος και αποθήκευση του καλύτερου μοντέλου
         if total_reward > best_reward:
             best_reward = total_reward
             save_path = "best_model_double.pth" if use_double else "best_model.pth"
@@ -191,8 +190,8 @@ def test_agent(model_path, save_dir,episodes=10):
     env.close()
 
     best_ep = int(np.argmax(rewards))
-    print(f"✅ Best episode: {best_ep + 1}, Reward: {rewards[best_ep]:.2f}")
-    print(f"📼 Videos saved to '{save_dir}'")
+    print(f"Best episode: {best_ep + 1}, Reward: {rewards[best_ep]:.2f}")
+    print(f"Videos saved to '{save_dir}'")
 
 def main():
     """ Main function to train and test the DQN and Double DQN agents. """
