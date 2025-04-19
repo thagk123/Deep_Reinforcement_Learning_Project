@@ -169,7 +169,6 @@ def test_agent(model_path, save_dir,episodes=10):
         episode_trigger=lambda x: True
     )    
 
-
     model = DQN()
     model.load_state_dict(torch.load(model_path))
     model.eval()
