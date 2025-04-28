@@ -174,7 +174,12 @@ def test_agent(model_path, save_dir):
     os.makedirs(save_dir, exist_ok=True)
 
     env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
+    env = RecordVideo(
+        env,
+        video_folder=save_dir,
+        name_prefix="lunar_test",
+        episode_trigger=lambda x: True
+    )
 
     model = PPOActorCritic()
     model.load_state_dict(torch.load(model_path))
