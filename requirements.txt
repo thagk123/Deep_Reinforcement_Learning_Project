@@ -1,0 +1,6 @@
+torch
+gymnasium
+moviepy
+numpy
+matplotlib
+pandas
