@@ -1,16 +1,17 @@
-""" Module to train and evaluate a DQN and a Double DQN agent on the LunarLander-v3 environment. """
+""" Module to train and evaluate a DQN and a Double DQN agent on the LunarLander-v2 environment. """
 
 import os
 import time
-import random
-import shutil
-from collections import deque
-import numpy as np
+import test
 import torch
+import random
+import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 import gymnasium as gym
-from gymnasium.wrappers import RecordVideo
+from collections import deque
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # ------------------------------
 # Hyperparameters
@@ -71,12 +72,12 @@ class ReplayBuffer:
 
 
 def train_dqn(use_double=False):
-    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment.
-
+    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment. 
+    
     Args:
         use_double (bool): If True, use Double DQN. Otherwise, use standard DQN.
     """
-    env = gym.make("LunarLander-v3")
+    env = gym.make("LunarLander-v2")
     policy_net = DQN()
     target_net = DQN()
     target_net.load_state_dict(policy_net.state_dict())
@@ -89,6 +90,10 @@ def train_dqn(use_double=False):
     start = time.time()
 
     best_reward = float('-inf')
+
+    # Προσθήκη για συλλογή rewards
+    all_rewards = []
+    average_rewards = []
 
     for episode in range(NUM_EPISODES):
         state, _ = env.reset()
@@ -137,6 +142,12 @@ def train_dqn(use_double=False):
             if done:
                 break
 
+        # Καταγραφή reward
+        all_rewards.append(total_reward)
+        if (episode + 1) % 100 == 0:
+            avg_reward = sum(all_rewards[-100:]) / 100
+            average_rewards.append({'Episode': episode + 1, 'Average Reward': avg_reward})
+
         if total_reward > best_reward:
             best_reward = total_reward
             save_path = "best_model_double.pth" if use_double else "best_model.pth"
@@ -145,29 +156,36 @@ def train_dqn(use_double=False):
 
         epsilon = max(EPS_END, epsilon * EPS_DECAY)
         agent_type = "Double DQN" if use_double else "DQN"
-        print(f"[{agent_type}] Episode {episode + 1}, "
-              f"Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}")
-
+        print(f"[{agent_type}] Episode {episode + 1}, Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}")
 
     env.close()
     end = time.time()
     print(f"Training time: {(end - start)/60:.2f} minutes")
 
+    # Δημιουργία DataFrame και εμφάνιση
+    df = pd.DataFrame(average_rewards)
+    print(df)
 
-def test_agent(model_path, save_dir,episodes=10):
+    # Σχεδίαση διαγράμματος
+    plt.plot(df['Episode'], df['Average Reward'], marker='o')
+    plt.title('Μέσο Reward ανά 100 επεισόδια')
+    plt.xlabel('Επεισόδιο')
+    plt.ylabel('Μέσο Reward')
+    plt.grid(True)
+    plt.show()
+
+
+def test_agent(model_path, save_dir):
     """ Test the trained agent on the LunarLander-v3 environment."""
+    from gymnasium.wrappers import RecordVideo
+    import shutil
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
     os.makedirs(save_dir, exist_ok=True)
 
-    env = gym.make("LunarLander-v3", render_mode="rgb_array")
-    env = RecordVideo(
-        env,
-        video_folder=save_dir,
-        name_prefix="lunar_test",
-        episode_trigger=lambda x: True
-    )
+    env = gym.make("LunarLander-v2", render_mode="rgb_array")
+    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
 
     model = DQN()
     model.load_state_dict(torch.load(model_path))
@@ -176,14 +194,13 @@ def test_agent(model_path, save_dir,episodes=10):
     rewards = []
 
     print(f"Testing agent from '{model_path}'")
-    for episode in range(episodes):
+    for episode in range(10):
         state, _ = env.reset()
         total_reward = 0
 
         while True:
             with torch.no_grad():
-                state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
-                action = model(state_tensor).argmax().item()
+                action = model(torch.tensor(state, dtype=torch.float32).unsqueeze(0)).argmax().item()
             next_state, reward, terminated, truncated, _ = env.step(action)
             total_reward += reward
             state = next_state
@@ -201,11 +218,12 @@ def test_agent(model_path, save_dir,episodes=10):
 
 def main():
     """ Main function to train and test the DQN and Double DQN agents. """
-    train_dqn(use_double=False)
-    test_agent("best_model.pth", save_dir="test_results")
+    #train_dqn(use_double=False)
+    #test_agent("best_model.pth", save_dir="test_results")
 
-    #train_dqn(use_double=True)
-    #test_agent("best_model_double.pth", save_dir="test_results_double")
+    train_dqn(use_double=True)
+    test_agent("best_model_double.pth", "test_results_double")
 
 if __name__ == "__main__":
     main()
+    
