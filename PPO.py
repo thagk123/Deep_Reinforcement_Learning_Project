@@ -7,6 +7,8 @@ import time
 import shutil
 import gymnasium as gym
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -25,6 +27,7 @@ NUM_EPISODES = 5000
 
 class PPOActorCritic(nn.Module):
     """A simple actor-critic network for PPO."""
+
     def __init__(self):
         """Initialize the actor-critic network."""
         super().__init__()
@@ -45,6 +48,7 @@ class PPOActorCritic(nn.Module):
 
 class RolloutBuffer:
     """Buffer to collect experiences for PPO updates."""
+
     def __init__(self):
         """Initialize the buffer."""
         self.clear()
@@ -69,6 +73,54 @@ def compute_returns(rewards, dones, gamma):
         G = r + gamma * G
         returns.insert(0, G)
     return torch.tensor(returns, dtype=torch.float32)
+    
+
+def final_evaluation(env, model, best_reward, update_index, average_rewards):
+    """Evaluate final trained model with a rollout of 4096 steps."""
+    buffer = RolloutBuffer()
+    total_steps = 0
+    rewards_per_episode = []
+
+    while total_steps < BATCH_SIZE:
+        state, _ = env.reset()
+        done = False
+        total_reward = 0
+
+        while not done:
+            state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+            with torch.no_grad():
+                logits, value = model(state_tensor)
+                probs = torch.softmax(logits, dim=1)
+                dist = torch.distributions.Categorical(probs)
+                action = dist.sample().item()
+                logprob = dist.log_prob(torch.tensor(action)).item()
+
+            next_state, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
+
+            buffer.states.append(state)
+            buffer.actions.append(action)
+            buffer.logprobs.append(logprob)
+            buffer.rewards.append(reward)
+            buffer.dones.append(done)
+            buffer.values.append(value.item())
+
+            state = next_state
+            total_reward += reward
+            total_steps += 1
+
+            if done:
+                rewards_per_episode.append(total_reward)
+                break
+
+    avg_reward = np.mean(rewards_per_episode)
+    average_rewards.append({'Update': update_index, 'Average Reward': avg_reward})
+
+    if avg_reward > best_reward:
+        torch.save(model.state_dict(), "best_model_ppo.pth")
+        print(f"[Final Eval] Final model was best with Avg Reward: {avg_reward:.2f}")
+
+    return average_rewards
 
 
 def train_ppo():
@@ -81,7 +133,9 @@ def train_ppo():
 
     best_reward = float('-inf')
     episode = 0
+    update_index = 0
     start_time = time.time()
+    average_rewards = []
 
     while episode < NUM_EPISODES:
         buffer.clear()
@@ -120,6 +174,17 @@ def train_ppo():
                     episode += 1
                     break
 
+        avg_reward = np.mean(rewards_per_episode)
+        average_rewards.append({'Update': update_index, 'Average Reward': avg_reward})
+        update_index += 1
+
+        if avg_reward > best_reward:
+            best_reward = avg_reward
+            torch.save(model.state_dict(), "best_model_ppo.pth")
+            print(f"New best model saved, with avg reward: {best_reward:.2f}")
+
+        print(f"[PPO] Episode {episode}, Avg Reward: {avg_reward:.2f}")
+
         returns = compute_returns(buffer.rewards, buffer.dones, GAMMA)
         returns = (returns - returns.mean()) / (returns.std() + 1e-8)
 
@@ -154,18 +219,35 @@ def train_ppo():
 
         scheduler.step()
 
-        avg_reward = np.mean(rewards_per_episode)
-        if avg_reward > best_reward:
-            best_reward = avg_reward
-            torch.save(model.state_dict(), "best_model_ppo.pth")
-            print(f"New best model saved, with avg reward: {best_reward:.2f}")
-
-        print(f"[PPO] Episode {episode}, Avg Reward: {avg_reward:.2f}")
+    # --- Τελική αξιολόγηση για το τελικό policy ---
+    average_rewards = final_evaluation(env, model, best_reward, update_index, average_rewards)
 
     env.close()
     end_time = time.time()
     print(f"Training time: {(end_time - start_time) / 60:.2f} minutes")
 
+    # Διάγραμμα grouped updates
+    df = pd.DataFrame(average_rewards)
+    group_size = 20
+    num_groups = len(df) // group_size
+
+    smoothed = []
+    for i in range(num_groups):
+        start = i * group_size
+        end = start + group_size
+        group = df.iloc[start:end]
+        avg = group['Average Reward'].mean()
+        update = group['Update'].iloc[-1]
+        smoothed.append({'Update': update, 'Average Reward': avg})
+
+    df_smooth = pd.DataFrame(smoothed)
+    plt.plot(df_smooth['Update'], df_smooth['Average Reward'], marker='o')
+    plt.title('Μέσο Reward ανά PPO Update (Grouped)')
+    plt.xlabel('PPO Update')
+    plt.ylabel('Μέσο Reward')
+    plt.grid(True)
+    plt.show()
+ 
 
 def test_agent(model_path, save_dir):
     """Test a trained PPO agent and record videos."""
@@ -174,12 +256,7 @@ def test_agent(model_path, save_dir):
     os.makedirs(save_dir, exist_ok=True)
 
     env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    env = RecordVideo(
-        env,
-        video_folder=save_dir,
-        name_prefix="lunar_test",
-        episode_trigger=lambda x: True
-    )
+    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
 
     model = PPOActorCritic()
     model.load_state_dict(torch.load(model_path))
@@ -222,3 +299,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
