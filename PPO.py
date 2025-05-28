@@ -219,14 +219,14 @@ def train_ppo():
 
         scheduler.step()
 
-    # --- Τελική αξιολόγηση για το τελικό policy ---
+    # --- Final Evaluation for the last policy ---
     average_rewards = final_evaluation(env, model, best_reward, update_index, average_rewards)
 
     env.close()
     end_time = time.time()
     print(f"Training time: {(end_time - start_time) / 60:.2f} minutes")
 
-    # Διάγραμμα grouped updates
+    # Grouped updates diagram
     df = pd.DataFrame(average_rewards)
     group_size = 20
     num_groups = len(df) // group_size
