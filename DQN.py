@@ -142,7 +142,7 @@ def train_dqn(use_double=False):
             if done:
                 break
 
-        # Καταγραφή reward
+        # Calculating reward
         all_rewards.append(total_reward)
         if (episode + 1) % 100 == 0:
             avg_reward = sum(all_rewards[-100:]) / 100
@@ -162,11 +162,11 @@ def train_dqn(use_double=False):
     end = time.time()
     print(f"Training time: {(end - start)/60:.2f} minutes")
 
-    # Δημιουργία DataFrame και εμφάνιση
+    # Making the DataFrame
     df = pd.DataFrame(average_rewards)
     print(df)
 
-    # Σχεδίαση διαγράμματος
+    # Making the plot
     plt.plot(df['Episode'], df['Average Reward'], marker='o')
     plt.title('Μέσο Reward ανά 100 επεισόδια')
     plt.xlabel('Επεισόδιο')
