@@ -1,5 +1,5 @@
 """
-Module to train and evaluate a PPO agent on the LunarLander-v2 environment.
+Module to train and evaluate a PPO agent on the LunarLander-v3 environment.
 """
 
 import os
@@ -122,8 +122,8 @@ def final_evaluation(env, model, best_reward, update_index, average_rewards):
     return average_rewards
 
 def train_ppo():
-    """Train PPO agent on LunarLander-v2."""
-    env = gym.make("LunarLander-v2")
+    """Train PPO agent on LunarLander-v3."""
+    env = gym.make("LunarLander-v3")
     model = PPOActorCritic()
     optimizer = optim.Adam(model.parameters(), lr=LR)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.9)
@@ -252,7 +252,7 @@ def test_agent(model_path, save_dir):
         shutil.rmtree(save_dir)
     os.makedirs(save_dir, exist_ok=True)
 
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
+    env = gym.make("LunarLander-v3", render_mode="rgb_array")
     env = RecordVideo(
         env,
         video_folder=save_dir,
