@@ -1,17 +1,18 @@
-""" Module to train and evaluate a DQN and a Double DQN agent on the LunarLander-v2 environment. """
+""" Module to train and evaluate a DQN and a Double DQN agent on the LunarLander-v3 environment. """
 
 import os
-import time
-import test
-import torch
 import random
+import time
+from collections import deque
+import gymnasium as gym
+from gymnasium.wrappers import RecordVideo
+import shutil
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import torch
 import torch.nn as nn
 import torch.optim as optim
-import gymnasium as gym
-from collections import deque
-import pandas as pd
-import matplotlib.pyplot as plt
 
 # ------------------------------
 # Hyperparameters
@@ -72,12 +73,12 @@ class ReplayBuffer:
 
 
 def train_dqn(use_double=False):
-    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment. 
-    
+    """ Train the DQN or Double DQN agent on the LunarLander-v3 environment.
+
     Args:
         use_double (bool): If True, use Double DQN. Otherwise, use standard DQN.
     """
-    env = gym.make("LunarLander-v2")
+    env = gym.make("LunarLander-v3")
     policy_net = DQN()
     target_net = DQN()
     target_net.load_state_dict(policy_net.state_dict())
@@ -156,7 +157,10 @@ def train_dqn(use_double=False):
 
         epsilon = max(EPS_END, epsilon * EPS_DECAY)
         agent_type = "Double DQN" if use_double else "DQN"
-        print(f"[{agent_type}] Episode {episode + 1}, Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}")
+        print(
+            f"[{agent_type}] Episode {episode + 1}, "
+            f"Reward: {total_reward:.2f}, Epsilon: {epsilon:.3f}"
+        )
 
     env.close()
     end = time.time()
@@ -177,15 +181,18 @@ def train_dqn(use_double=False):
 
 def test_agent(model_path, save_dir):
     """ Test the trained agent on the LunarLander-v3 environment."""
-    from gymnasium.wrappers import RecordVideo
-    import shutil
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
     os.makedirs(save_dir, exist_ok=True)
 
-    env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
+    env = gym.make("LunarLander-v3", render_mode="rgb_array")
+    env = RecordVideo(
+        env,
+        video_folder=save_dir,
+        name_prefix="lunar_test",
+        episode_trigger=lambda x: True
+    )
 
     model = DQN()
     model.load_state_dict(torch.load(model_path))
@@ -200,7 +207,9 @@ def test_agent(model_path, save_dir):
 
         while True:
             with torch.no_grad():
-                action = model(torch.tensor(state, dtype=torch.float32).unsqueeze(0)).argmax().item()
+                state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+                q_values = model(state_tensor)
+                action = q_values.argmax().item()
             next_state, reward, terminated, truncated, _ = env.step(action)
             total_reward += reward
             state = next_state
@@ -226,4 +235,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
