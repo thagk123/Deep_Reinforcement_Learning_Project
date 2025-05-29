@@ -2,11 +2,11 @@
 
 import os
 import random
+import shutil
 import time
 from collections import deque
 import gymnasium as gym
 from gymnasium.wrappers import RecordVideo
-import shutil
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

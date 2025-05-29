@@ -73,7 +73,6 @@ def compute_returns(rewards, dones, gamma):
         G = r + gamma * G
         returns.insert(0, G)
     return torch.tensor(returns, dtype=torch.float32)
-    
 
 def final_evaluation(env, model, best_reward, update_index, average_rewards):
     """Evaluate final trained model with a rollout of 4096 steps."""
@@ -121,7 +120,6 @@ def final_evaluation(env, model, best_reward, update_index, average_rewards):
         print(f"[Final Eval] Final model was best with Avg Reward: {avg_reward:.2f}")
 
     return average_rewards
-
 
 def train_ppo():
     """Train PPO agent on LunarLander-v2."""
@@ -247,7 +245,6 @@ def train_ppo():
     plt.ylabel('Μέσο Reward')
     plt.grid(True)
     plt.show()
- 
 
 def test_agent(model_path, save_dir):
     """Test a trained PPO agent and record videos."""
@@ -256,7 +253,12 @@ def test_agent(model_path, save_dir):
     os.makedirs(save_dir, exist_ok=True)
 
     env = gym.make("LunarLander-v2", render_mode="rgb_array")
-    env = RecordVideo(env, video_folder=save_dir, name_prefix="lunar_test", episode_trigger=lambda x: True)
+    env = RecordVideo(
+        env,
+        video_folder=save_dir,
+        name_prefix="lunar_test",
+        episode_trigger=lambda x: True
+    )
 
     model = PPOActorCritic()
     model.load_state_dict(torch.load(model_path))
@@ -299,4 +301,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
