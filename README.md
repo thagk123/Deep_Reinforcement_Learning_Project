@@ -1,7 +1,8 @@
 # DQN, Double DQN & PPO Training on LunarLander
 🇬🇧 English
 
-This project provides a PyTorch implementation of DQN, Double DQN, and PPO agents trained on the LunarLander environment using Gymnasium.
+This project provides an implementation of DQN, Double DQN, and PPO agents trained on the LunarLander environment using Gymnasium.
+All the models were trained from scratch using PyTorch.
 
 ## Features
 - Deep Q-Network (DQN) with 3 fully connected layers
@@ -22,7 +23,8 @@ To switch to Double DQN, uncomment the last two lines in the main() function.
 
 🇬🇷 Ελληνικά
 
-Αυτό το project υλοποιεί με χρήση PyTorch τρεις αλγορίθμους: DQN, Double DQN και PPO για το περιβάλλον LunarLander της βιβλιοθήκης Gymnasium.
+Αυτό το project υλοποιεί τρεις αλγορίθμους: DQN, Double DQN και PPO για το περιβάλλον LunarLander της βιβλιοθήκης Gymnasium.
+Όλα τα μοντέλα εκπαιδεύτηκαν from scratch με χρήση PyTorch.
 
 ## Δυνατότητες
 - Νευρωνικό δίκτυο με 3 πλήρως συνδεδεμένα επίπεδα (DQN και Double DQN)
