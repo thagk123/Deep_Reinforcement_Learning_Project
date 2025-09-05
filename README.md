@@ -1,4 +1,8 @@
-# DQN, Double DQN & PPO Training on LunarLander
+# 🚀 DQN, Double DQN & PPO Training on LunarLander
+
+📚 University project for the course **Computational Intelligence - Deep Reinforcement Learning**, graded **9.5/10**.  
+🙌 Completed as an **exemption (απαλλακτική) assignment**.  
+
 🇬🇧 English
 
 This project provides an implementation of DQN, Double DQN, and PPO agents trained on the LunarLander environment using Gymnasium.
